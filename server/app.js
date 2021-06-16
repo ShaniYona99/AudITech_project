@@ -1,6 +1,6 @@
 
 const bodyParser = require('body-parser');
-
+const cors = require('cors');
 const express = require('express');
 const app = express();
 
@@ -13,6 +13,7 @@ const connection = mysql.createConnection({
     database: 'events_db'
 });
 
+app.use(cors());
 try {
     //check if table exists
     connection.query(`SELECT * 
@@ -33,7 +34,6 @@ try {
 
 
 
-
 //listen for requests
 app.listen(444, '0.0.0.0');
 
@@ -42,26 +42,45 @@ app.get('/', (req, res) => {
 });
 var jsonParser = bodyParser.json();
 
+
+
 //endpoint for github events
 app.post('/payload', jsonParser, (req, res) => {
     data = JSON.stringify(req.body);
 
     if (JSON.parse(data).pull_request != undefined) {
         const request = JSON.parse(data).pull_request
-        connection.query(`SELECT event_id FROM mytable WHERE event_id = ${request.id}`, (error, results) => {
-            if(results == 0){
-                connection.query('INSERT INTO REPO_EVENTS (event_id, event_title, user, head_branch, base_branch);' +
-                `VALUES (${request.id}, ${request.title}, ${request.user.login}, ${request.head.ref}, ${request.base.ref});`);
+        connection.query(`SELECT count(*) AS namesCount FROM repo_events WHERE event_id = ${request.id}`, (error, results) => {
+            
+            if(results[0].namesCount==0 ){
+                connection.query('INSERT INTO REPO_EVENTS (event_id, event_title, user, head_branch, base_branch) ' +
+                `VALUES ('${request.id}', '${request.title}', '${request.user.login}', '${request.head.ref}', '${request.base.ref}');`);
             }
         });
     }
     res.send('s');
 });
-
-let query = 'SELECT * FROM repo_events';
   
-connection.query(query, (err, rows) => {
+connection.query('SELECT * FROM repo_events', (err, rows) => {
 
-    console.log(rows);
+    console.log(JSON.stringify(rows));
 });
+// close connection to db
+
+
+
+//endpoint for client data retrieval 
+app.get('/getEvents',(req, res) => {
+    let query = "SELECT * FROM repo_events ";
+
+       let [rows] = connection.query(query);
+       let payload = [];
+       console.log(rows);
+    //    rows.forEach( (row) => (payload += row));
+      res.send(payload);
+    });
+
+// if (connection && connection.end) {
+//     connection.end()
+// }
 
