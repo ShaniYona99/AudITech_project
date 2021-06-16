@@ -12,7 +12,11 @@ class EventList extends Component {
     componentDidMount(){
         axios.get('http://87.71.188.81:444/getEvents')
         .then(response => {
-            console.log(response);
+            var stringV = JSON.stringify(response);
+            console.log(JSON.parse(stringV).data.results)
+            this.setState({ eventList: JSON.parse(stringV).data.results });
+         
+            console.log(this.state.eventList)
         })
         .catch(error => {
             console.log("error: "+ error);
@@ -22,7 +26,31 @@ class EventList extends Component {
     render(){
         return(
             <div>
-                
+               <h1>Pull Request Table</h1>
+            <table>
+                <thead>
+                <tr>
+                    <th>Request Id</th>
+                    <th>Request Title</th>
+                    <th>User</th>
+                    <th>Request Head</th>
+                    <th>Recuest Base</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {
+                        this.state.eventList.map((item) => (
+                            <tr key={item.event_id}>
+                                <td>{item.event_id}</td>
+                                <td>{item.event_title}</td>
+                                <td>{item.user}</td>
+                                <td>{item.head_branch}</td>
+                                <td>{item.base_branch}</td>
+                            </tr>
+                        ))
+                    }
+                </tbody>
+            </table>
             </div>
         )
     }
