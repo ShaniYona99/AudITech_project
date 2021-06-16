@@ -1,0 +1,19 @@
+.App {
+  text-align: center;
+  /* margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 10px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.table{
+  text-align: center;
+  border: 1px solid black;
+}
+
+.table, th, td{
+  padding:3px;
+  border: 1px solid black;
+}
