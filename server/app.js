@@ -3,21 +3,16 @@ const cors = require('cors');
 const express = require('express');
 const app = express();
 const mysql = require('mysql');
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'events_db'
-});
+
 app.use(cors());
 try {
-    //create db connection
-    // const connection = mysql.createConnection({
-    //     host: 'localhost',
-    //     user: 'root',
-    //     password: 'password',
-    //     database: 'events_db'
-    // });
+    // create db connection
+    const connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'password',
+        database: 'events_db'
+    });
     //check if table exists
     connection.query(`SELECT * 
     FROM information_schema.tables
@@ -31,7 +26,9 @@ try {
             connection.query('CREATE TABLE REPO_EVENTS (event_id INT PRIMARY KEY, event_title VARCHAR(200), user VARCHAR(100), head_branch VARCHAR(100), base_branch VARCHAR(100));');
         }
     });
-
+    if (connection && connection.end) {
+        connection.end();
+    }
 } catch (e) {
     console.log(`error: ${e}`);
 }
@@ -49,13 +46,13 @@ var jsonParser = bodyParser.json();
 //endpoint for github events
 app.post('/payload', jsonParser, (req, res) => {
     data = JSON.stringify(req.body);
-    //create db connection
-    // const connection = mysql.createConnection({
-    //     host: 'localhost',
-    //     user: 'root',
-    //     password: 'password',
-    //     database: 'events_db'
-    // });
+    // create db connection
+    const connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'password',
+        database: 'events_db'
+    });
 
     if (JSON.parse(data).pull_request != undefined) {
         const request = JSON.parse(data).pull_request
@@ -67,30 +64,33 @@ app.post('/payload', jsonParser, (req, res) => {
             }
         });
     }
+    if (connection && connection.end) {
+        connection.end();
+    }
     res.send('recieved');
+
 });
 
 
 //endpoint for client data retrieval 
 app.get('/getEvents', async function (req, res) {
     var context = {};
-    // const connection = mysql.createConnection({
-    //     host: 'localhost',
-    //     user: 'root',
-    //     password: 'password',
-    //     database: 'events_db'
-    // })
-    connection.connect();
+    const connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'password',
+        database: 'events_db'
+    })
+    // connection.connect();
     connection.query('SELECT * FROM repo_events', function (err, rows, fields) {
         if (err) {
-            next(err);
+            console.log(err);
             return;
         }
         context.results = rows;
         res.send(context);
     });
-
+    if (connection && connection.end) {
+        connection.end();
+    }
 });
-if (connection && connection.end) {
-    connection.end();
-}
