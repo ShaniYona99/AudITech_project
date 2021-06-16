@@ -1,5 +1,7 @@
 import axios from 'axios';
 import React, {Component} from 'react'
+import './App.css';
+
 
 class EventList extends Component {
     constructor(props){
@@ -27,14 +29,14 @@ class EventList extends Component {
         return(
             <div>
                <h1>Pull Request Table</h1>
-            <table>
+            <table className='table'>
                 <thead>
                 <tr>
                     <th>Request Id</th>
                     <th>Request Title</th>
                     <th>User</th>
                     <th>Request Head</th>
-                    <th>Recuest Base</th>
+                    <th>Request Base</th>
                 </tr>
                 </thead>
                 <tbody>
